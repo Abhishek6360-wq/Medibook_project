@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import DoctorCard from '../components/DoctorCard'
+import DoctorCard from '../components/doctorcard'
 import { AppContext } from '../context/appcontext'
 
 const Doctors = () => {

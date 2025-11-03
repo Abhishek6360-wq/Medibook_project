@@ -17,14 +17,14 @@ app.use(express.json());
 // midleware to cnnect backend with frontend 
 app.use(cors());
 
-// api endpoint
+// api endpoints
 
 // this will go the following route localhost:port/api/admin/add-doctor and execute add doctor function 
 app.use('/api/admin',adminrouter);
 app.use('/api/doctor',docrouter);
 app.use('/api/user',userrouter);
 
-app.get('/',(re,res)=>{
+app.get('/',(req,res)=>{
     res.send("API is working nice");
 })
 
