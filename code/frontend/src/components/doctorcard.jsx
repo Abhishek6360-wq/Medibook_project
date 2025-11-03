@@ -1,6 +1,5 @@
 // DoctorCard.jsx
 import React from "react";
-
 const DoctorCard = ({ doctor, onclick }) => {
   const { name, speciality, image, available } = doctor;
 
