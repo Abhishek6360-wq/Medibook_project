@@ -1,6 +1,6 @@
 import React, { useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import DoctorCard from './DoctorCard';
+import DoctorCard from './doctorcard';
 import { AppContext } from '../context/appcontext';
 
 const TopDoctors = () => {
