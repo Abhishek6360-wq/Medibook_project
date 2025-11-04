@@ -8,7 +8,7 @@ import Myappointments from "./pages/myappointments";
 import Profile from "./pages/profile";
 import Appointments from "./pages/appointments";
 import Layout from "./components/layout"; 
-
+// test frontend auto deploy
 function App() {
   const router = createBrowserRouter([
     {
