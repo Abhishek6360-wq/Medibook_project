@@ -10,6 +10,7 @@ import Appointments from "./pages/appointments";
 import Layout from "./components/layout"; 
 // test frontend auto deploy
 // commit attemp
+// commit attempt -2
 function App() {
   const router = createBrowserRouter([
     {
