@@ -179,7 +179,7 @@ const Appointments = () => {
           </p>
 
           <p className="mt-5 font-semibold text-gray-900">
-            Appointment fee: <span className="text-blue-600">${doctor.fees}</span>
+            Appointment fee: <span className="text-blue-600">₹{doctor.fees}</span>
           </p>
         </div>
       </div>
