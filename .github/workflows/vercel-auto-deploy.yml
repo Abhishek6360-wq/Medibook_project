@@ -1,0 +1,23 @@
+name: Auto Deploy to Vercel (Frontend + Admin)
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-frontend:
+    if: contains(join(github.event.commits.*.modified, ' '), 'code/frontend/')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Frontend Deploy (Medibook-frontend)
+        run: |
+          curl -X POST https://api.vercel.com/v1/integrations/deploy/prj_PTPL0PgXyBdFyLELesXCckYq7v03/AtUbRnUwJj
+
+  deploy-admin:
+    if: contains(join(github.event.commits.*.modified, ' '), 'code/admin/')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Admin Deploy (Medibook-admin)
+        run: |
+          curl -X POST https://api.vercel.com/v1/integrations/deploy/prj_db7aYXXCXOYMmPfZAAy6X2z6EcCL/CGs5tcujnc
