@@ -25,10 +25,10 @@ const Header = () => {
           
           <div className="flex flex-col md:flex-row items-center md:items-start justify-center md:justify-start mb-6">
             <div className="flex -space-x-4 mb-4 md:mb-0 md:mr-4 flex-shrink-0"> 
-              <img className="w-10 h-10 rounded-full border-2 border-white object-cover" src={placeholderImages.doctor1} alt="Doctor 1" />
-              <img className="w-10 h-10 rounded-full border-2 border-white object-cover" src={placeholderImages.doctor2} alt="Doctor 2" />
-              <img className="w-10 h-10 rounded-full border-2 border-white object-cover" src={placeholderImages.doctor3} alt="Doctor 3" />
-              <img className="w-10 h-10 rounded-full border-2 border-white object-cover" src={placeholderImages.doctor4} alt="Doctor 4" />
+              <img className="w-10 h-10 rounded-full border-2 border-white object-cover" src={placeholderImages.doctor1} alt="Doctor 1" loading="lazy" width="40" height="40" />
+              <img className="w-10 h-10 rounded-full border-2 border-white object-cover" src={placeholderImages.doctor2} alt="Doctor 2" loading="lazy" width="40" height="40" />
+              <img className="w-10 h-10 rounded-full border-2 border-white object-cover" src={placeholderImages.doctor3} alt="Doctor 3" loading="lazy" width="40" height="40" />
+              <img className="w-10 h-10 rounded-full border-2 border-white object-cover" src={placeholderImages.doctor4} alt="Doctor 4" loading="lazy" width="40" height="40" />
             </div>
             <p className="text-lg text-center md:text-left flex-grow">
               Simply browse through our extensive list of trusted doctors,
@@ -51,8 +51,11 @@ const Header = () => {
           <img
             src={placeholderImages.doctorMain}
             alt="Trusted Doctors"
-            className="h-full w-full object-cover rounded-tr-lg rounded-br-lg" // Changed w-auto to w-full
-            style={{ objectPosition: 'right' }} // FIX: Changed to 'right'
+            className="h-full w-full object-cover rounded-tr-lg rounded-br-lg"
+            style={{ objectPosition: 'right' }}
+            loading="lazy"
+            width="800"
+            height="500"
           />
         </div>
       </div>

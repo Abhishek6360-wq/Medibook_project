@@ -89,15 +89,18 @@ const Profile = () => {
         {/* Profile Header */}
         <div className="flex flex-col items-center text-center mb-6">
           <label htmlFor="imageUpload" className="relative cursor-pointer">
-            <img
+            <img
               src={
                 selectedImage
                   ? URL.createObjectURL(selectedImage)
                   : userData.image || "https://via.placeholder.com/112"
               }
-              alt="Profile"
-              className="w-28 h-28 rounded-full border-4 border-blue-400 shadow-md mb-4 object-cover"
-            />
+              alt="Profile"
+              className="w-28 h-28 rounded-full border-4 border-blue-400 shadow-md mb-4 object-cover"
+              loading="lazy"
+              width="112"
+              height="112"
+            />
             {isEdit && (
               <div className="absolute bottom-3 right-3 bg-blue-500 text-white text-xs px-2 py-1 rounded-md shadow-md">
                 Change

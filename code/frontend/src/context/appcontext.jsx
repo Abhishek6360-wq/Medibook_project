@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useState, useMemo, useCallback } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 
@@ -19,7 +19,7 @@ const AppContextProvider = (props) => {
   const backendurl = import.meta.env.VITE_BACKEND_URL;
 
   // ============= GET DOCTORS LIST =============
-  const getdoctorsdata = async () => {
+  const getdoctorsdata = useCallback(async () => {
     setLoadingDoctors(true);
     try {
       const { data } = await axios.get(backendurl + "/api/doctor/list");
@@ -33,10 +33,10 @@ const AppContextProvider = (props) => {
     } finally {
       setLoadingDoctors(false);
     }
-  };
+  }, [backendurl]);
 
   // ============= GET USER PROFILE DATA =============
-  const getuserprofiledata = async () => {
+  const getuserprofiledata = useCallback(async () => {
     if (!token) return;
     setLoadingUserData(true);
     try {
@@ -54,10 +54,10 @@ const AppContextProvider = (props) => {
     } finally {
       setLoadingUserData(false);
     }
-  };
+  }, [token, backendurl]);
 
   // ============= SEND CONTACT FORM =============
-  const sendContactMessage = async (formData) => {
+  const sendContactMessage = useCallback(async (formData) => {
     try {
       const { data } = await axios.post(
         backendurl + "/api/admin/contact",
@@ -76,10 +76,10 @@ const AppContextProvider = (props) => {
       toast.error("Something went wrong while sending message");
       return false;
     }
-  };
+  }, [backendurl, token]);
 
   // ============= CONTEXT VALUE =============
-  const value = {
+  const value = useMemo(() => ({
     doctors,
     token,
     setToken,
@@ -91,12 +91,12 @@ const AppContextProvider = (props) => {
     sendContactMessage,
     loadingDoctors,
     loadingUserData,
-  };
+  }), [doctors, token, backendurl, userData, getuserprofiledata, getdoctorsdata, sendContactMessage, loadingDoctors, loadingUserData]);
 
   // ============= EFFECTS =============
   useEffect(() => {
     getdoctorsdata();
-  }, []);
+  }, [getdoctorsdata]);
 
   useEffect(() => {
     if (token) {
@@ -105,7 +105,7 @@ const AppContextProvider = (props) => {
       setUserData(null);
       localStorage.removeItem("userData");
     }
-  }, [token]);
+  }, [token, getuserprofiledata]);
 
   return (
     <AppContext.Provider value={value}>{props.children}</AppContext.Provider>

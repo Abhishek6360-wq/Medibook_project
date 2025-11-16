@@ -1,12 +1,15 @@
 // DoctorCard.jsx
-import React from "react";
-const DoctorCard = ({ doctor, onclick }) => {
+import React, { useMemo } from "react";
+
+const DoctorCard = React.memo(({ doctor, onclick }) => {
   const { name, speciality, image, available } = doctor;
 
-  // Dynamic status based on backend data
-  const statusColor = available ? "text-green-600" : "text-red-600";
-  const dotColor = available ? "bg-green-600" : "bg-red-600";
-  const statusText = available ? "Available" : "Unavailable";
+  // Dynamic status based on backend data - memoized
+  const statusConfig = useMemo(() => ({
+    statusColor: available ? "text-green-600" : "text-red-600",
+    dotColor: available ? "bg-green-600" : "bg-red-600",
+    statusText: available ? "Available" : "Unavailable",
+  }), [available]);
 
   return (
     <div
@@ -32,6 +35,9 @@ const DoctorCard = ({ doctor, onclick }) => {
           className="w-full h-full object-cover object-bottom"
           src={image}
           alt={`Dr. ${name}`}
+          loading="lazy"
+          width="192"
+          height="224"
         />
       </div>
 
@@ -39,9 +45,9 @@ const DoctorCard = ({ doctor, onclick }) => {
       <div className="p-3">
         {/* Availability */}
         <div className="flex items-center mb-1">
-          <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${dotColor}`}></span>
-          <span className={`font-semibold text-xs ${statusColor}`}>
-            {statusText}
+          <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${statusConfig.dotColor}`}></span>
+          <span className={`font-semibold text-xs ${statusConfig.statusColor}`}>
+            {statusConfig.statusText}
           </span>
         </div>
 
@@ -57,6 +63,8 @@ const DoctorCard = ({ doctor, onclick }) => {
       </div>
     </div>
   );
-};
+});
+
+DoctorCard.displayName = 'DoctorCard';
 
 export default DoctorCard;

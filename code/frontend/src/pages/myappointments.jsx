@@ -188,6 +188,9 @@ const Myappointments = () => {
                     src={doctorImage}
                     alt={`Dr. ${doc?.name || "Doctor"}`}
                     className="flex-shrink-0 w-20 h-20 object-cover rounded-full border-2 border-gray-100"
+                    loading="lazy"
+                    width="80"
+                    height="80"
                   />
 
                   <div className="flex-grow min-w-0">

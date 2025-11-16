@@ -57,6 +57,9 @@ const AboutUs = () => (
           src="https://res.cloudinary.com/dzyuyrctv/image/upload/v1762180016/IMG-20250908-WA0000_lkmsye.jpg"
           alt="Founder of MediBook"
           className="w-48 h-48 rounded-full mx-auto mb-6 object-cover border-4 border-sky-300 shadow-md"
+          loading="lazy"
+          width="192"
+          height="192"
           onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src="https://placehold.co/192x192/e0f2fe/075985?text=Founder"; }}
         />
         <h3 className="text-2xl font-bold text-gray-800">Christopher</h3>

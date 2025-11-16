@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import DoctorCard from '../components/doctorcard'
 import { AppContext } from '../context/appcontext'
@@ -6,19 +6,15 @@ import { AppContext } from '../context/appcontext'
 const Doctors = () => {
     const{doctors, loadingDoctors}=useContext(AppContext)
     const { speciality } = useParams();
-    const [filterdoc, setFilterdoc] = useState([]);
     const navigate = useNavigate();
 
-    const applyfilter = () => {
+    // Memoize filtered doctors to avoid recalculating on every render
+    const filterdoc = useMemo(() => {
         if (speciality === 'All' || !speciality) {
-            setFilterdoc(doctors);
+            return doctors;
         } else {
-            setFilterdoc(doctors.filter(doc => doc.speciality === speciality));
+            return doctors.filter(doc => doc.speciality === speciality);
         }
-    };
-
-    useEffect(() => {
-        applyfilter();
     }, [speciality, doctors]);
 
     if (loadingDoctors) {
@@ -74,12 +70,12 @@ const Doctors = () => {
                 </ul>
             </div>
 
-            {/* Doctors Grid (No changes made here) */}
+            {/* Doctors Grid */}
             <div className="flex-1">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                    {filterdoc.map((doct, idx) => (
+                    {filterdoc.map((doct) => (
                         <DoctorCard
-                            key={idx}
+                            key={doct._id}
                             doctor={doct}
                             onclick={() => navigate(`/appointments/${doct._id}`)}
                         />

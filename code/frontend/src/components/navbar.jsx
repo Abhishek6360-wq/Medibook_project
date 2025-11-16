@@ -23,6 +23,8 @@ const Navbar = () => {
             src="https://flowbite.com/docs/images/logo.svg"
             className="h-8"
             alt="Logo"
+            width="32"
+            height="32"
           />
           <span className="self-center text-2xl font-semibold whitespace-nowrap text-gray-900">
             MediBook
@@ -42,6 +44,9 @@ const Navbar = () => {
                   src={userData.image || "https://via.placeholder.com/32"}
                   className="w-8 h-8 rounded-full object-cover border border-gray-300"
                   alt="User"
+                  loading="lazy"
+                  width="32"
+                  height="32"
                 />
               ) : (
                 <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse" />
