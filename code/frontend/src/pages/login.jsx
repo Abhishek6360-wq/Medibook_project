@@ -17,31 +17,28 @@ const Login = () => {
   const [dob, setDob] = useState("");
   const [phone, setPhone] = useState("");
   const [gender, setGender] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const {token,setToken,backendurl}=useContext(AppContext);
 
   const handlesubmit = async (event) => {
     event.preventDefault();
+    setLoading(true);
     try{
       if(state==="Signup"){
         
         const userdata={
           name,email,password,age,dob,phone,gender
         }
-        console.log("Backend URL:", backendurl);
         const {data}=await axios.post(backendurl+'/api/user/register',userdata);
         if(data.success){
-          console.log("user registeration succesfull")
-          localStorage.setItem('token',data.token)
           setToken(data.token);
         }else{
-          console.log(data.message)
           toast.error(data.message);
         }
       }else{
         const {data}=await axios.post(backendurl+'/api/user/login',{email,password});
         if(data.success){
-          localStorage.setItem('token',data.token)
           setToken(data.token);
         }else{
           toast.error(data.message);
@@ -49,6 +46,8 @@ const Login = () => {
       }
     }catch(err){
       toast.error(err.message);
+    }finally{
+      setLoading(false);
     }
   };
 
@@ -72,6 +71,7 @@ const Login = () => {
         password={password}
         setpassword={setPassword}
         handlesubmit={handlesubmit}
+        loading={loading}
       />
     ) : (
       <Signupcard
@@ -91,6 +91,7 @@ const Login = () => {
         gender={gender}
         setgender={setGender}
         handlesubmit={handlesubmit}
+        loading={loading}
       />
     )
   );

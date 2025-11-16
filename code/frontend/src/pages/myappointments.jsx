@@ -23,7 +23,6 @@ const Myappointments = () => {
         toast.error(data.message || "Failed to fetch appointments.");
       }
     } catch (error) {
-      console.error("Error fetching appointments:", error);
       toast.error(
         error.message || "An error occurred while fetching appointments."
       );
@@ -44,18 +43,17 @@ const Myappointments = () => {
       if (data.success) {
         toast.success(data.message);
         setAppointments(prevAppointments => 
-          prevAppointments.map(app => 
-            app._id === appointmentid 
-              ? { ...app, cancelled: true } // Mark as cancelled locally
-              : app
-          )
-        );
+          prevAppointments.map(app => 
+            app._id === appointmentid 
+              ? { ...app, cancelled: true }
+              : app
+          )
+        );
         getdoctorsdata();
       } else {
         toast.error(data.message);
       }
     } catch (error) {
-      console.log(error);
       toast.error(error.message);
     }
   };
@@ -71,7 +69,6 @@ const Myappointments = () => {
       order_id:order.id,
       receipt:order.receipt,
       handler:async(response)=>{
-        // console.log(response);
         try{
           const {data}=await axios.post(backendurl+'/api/user/verify-payment',{response},{headers:{usertoken:token}});
           if(data.success){
@@ -79,7 +76,6 @@ const Myappointments = () => {
             navigate('/myappointments');
           }
         }catch(error){
-          console.log(error);
           toast.error(error.message);
         }
       },
@@ -100,11 +96,9 @@ const Myappointments = () => {
         { headers: { usertoken: token } }
       );
       if (data.success) {
-        // console.log(data.order);
         initpay(data.order);
       }
     } catch (error) {
-      console.log(error);
       toast.error(error.message);
     }
   };

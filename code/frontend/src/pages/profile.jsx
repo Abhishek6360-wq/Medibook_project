@@ -5,9 +5,10 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 
 const Profile = () => {
-  const { userData, setUserData, token, backendurl, getuserprofiledata } = useContext(AppContext);
-  const [isEdit, setIsEdit] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null);
+  const { userData, setUserData, token, backendurl, getuserprofiledata, loadingUserData } = useContext(AppContext);
+  const [isEdit, setIsEdit] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [loadingUpdate, setLoadingUpdate] = useState(false);
   
   
   const handleEditClick = (e) => {
@@ -15,54 +16,72 @@ const Profile = () => {
     setIsEdit(true);    
   };
 
-  const updateuserprofile = async (e) => {
-    e.preventDefault();
-    try {
-      
-      const formData = new FormData();
-      formData.append('name', userData.name);
-      formData.append('email', userData.email);
-      formData.append('phone', userData.phno);
-      formData.append('dob', userData.dob);
-      formData.append('gender', userData.gender);
-      formData.append('Address', JSON.stringify(userData.Address));
-      if (selectedImage) formData.append('image', selectedImage);
+  const updateuserprofile = async (e) => {
+    e.preventDefault();
+    setLoadingUpdate(true);
+    try {
+      
+      const formData = new FormData();
+      formData.append('name', userData.name);
+      formData.append('email', userData.email);
+      formData.append('phone', userData.phno);
+      formData.append('dob', userData.dob);
+      formData.append('gender', userData.gender);
+      formData.append('Address', JSON.stringify(userData.Address));
+      if (selectedImage) formData.append('image', selectedImage);
 
-      const { data } = await axios.post(
-        `${backendurl}/api/user/user-update-profile`,
-        formData,
-        {
-          headers: { usertoken: token },
-        }
-      );
+      const { data } = await axios.post(
+        `${backendurl}/api/user/user-update-profile`,
+        formData,
+        {
+          headers: { usertoken: token },
+        }
+      );
 
-      if (data.success) {
-        toast.success(data.message);
-        
-        // 🌟 FIX APPLIED HERE: Directly update the global state with the new user object 
-        // returned from the backend, which contains the new image URL.
+      if (data.success) {
+        toast.success(data.message);
         setUserData(data.user);
-        
-        // NOTE: getuserprofiledata() is commented/removed as it's no longer necessary 
-        // and only caused a delay.
-        // getuserprofiledata(); 
-        
-        setIsEdit(false);
-        setSelectedImage(null);
-      } else {
-        toast.error(data.message);
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error(error.message);
-    }
-  };
+        setIsEdit(false);
+        setSelectedImage(null);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setLoadingUpdate(false);
+    }
+  };
 
 
 
   
 
-  return userData &&  (
+  if (loadingUserData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-200">
+        <div className="text-center">
+          <svg className="animate-spin h-12 w-12 text-blue-600 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <p className="text-gray-600 text-lg">Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!userData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-200">
+        <div className="text-center text-gray-600 text-lg">
+          Please log in to view your profile.
+        </div>
+      </div>
+    );
+  }
+
+  return (
     <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-blue-50 to-blue-200 dark:from-gray-900 dark:to-gray-800 py-10">
       <form
         onSubmit={updateuserprofile}
@@ -238,24 +257,35 @@ const Profile = () => {
         </div>
 
         {/* Buttons */}
-        <div className="flex justify-center">
-          {isEdit ? (
-            <button
-              type="submit"
-              className="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-md shadow-md transition-transform hover:scale-105"
-            >
-              SAVE INFORMATION
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={handleEditClick}
-              className="border border-blue-500 text-blue-600 px-5 py-2 rounded-md shadow-sm hover:bg-blue-100 transition-transform hover:scale-105"
-            >
-              EDIT
-            </button>
-          )}
-        </div>
+        <div className="flex justify-center">
+          {isEdit ? (
+            <button
+              type="submit"
+              disabled={loadingUpdate}
+              className="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-md shadow-md transition-transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+            >
+              {loadingUpdate ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Saving...
+                </>
+              ) : (
+                'SAVE INFORMATION'
+              )}
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={handleEditClick}
+              className="border border-blue-500 text-blue-600 px-5 py-2 rounded-md shadow-sm hover:bg-blue-100 transition-transform hover:scale-105"
+            >
+              EDIT
+            </button>
+          )}
+        </div>
       </form>
     </div>
   );

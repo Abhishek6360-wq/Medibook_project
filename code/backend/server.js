@@ -14,7 +14,7 @@ connectCloudinary();
 
 // middlware to parse any request into json
 app.use(express.json());
-// midleware to cnnect backend with frontend 
+// midleware to connect backend with frontend 
 app.use(cors());
 
 // api endpoints

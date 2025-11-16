@@ -5,6 +5,7 @@ import { ToastContainer } from "react-toastify";
 const Contact = () => {
   const { sendContactMessage } = useContext(AppContext);
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -12,9 +13,14 @@ const Contact = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const success = await sendContactMessage(formData);
-    if (success) {
-      setFormData({ name: "", email: "", message: "" });
+    setLoading(true);
+    try {
+      const success = await sendContactMessage(formData);
+      if (success) {
+        setFormData({ name: "", email: "", message: "" });
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -55,7 +61,8 @@ const Contact = () => {
                 onChange={handleChange}
                 placeholder="Your Name"
                 required
-                className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                disabled={loading}
+                className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-sky-500 disabled:opacity-50"
               />
             </div>
 
@@ -68,7 +75,8 @@ const Contact = () => {
                 onChange={handleChange}
                 placeholder="you@example.com"
                 required
-                className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                disabled={loading}
+                className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-sky-500 disabled:opacity-50"
               />
             </div>
 
@@ -81,15 +89,27 @@ const Contact = () => {
                 onChange={handleChange}
                 placeholder="Write your message here..."
                 required
-                className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                disabled={loading}
+                className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-sky-500 disabled:opacity-50"
               ></textarea>
             </div>
 
             <button
               type="submit"
-              className="w-full bg-sky-600 text-white font-semibold py-3 rounded-lg hover:bg-sky-700 transition duration-300 shadow-md"
+              disabled={loading}
+              className="w-full bg-sky-600 text-white font-semibold py-3 rounded-lg hover:bg-sky-700 transition duration-300 shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
             >
-              Send Message
+              {loading ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Sending...
+                </>
+              ) : (
+                'Send Message'
+              )}
             </button>
           </form>
         </div>
