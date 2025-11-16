@@ -3,7 +3,6 @@ import Header from '../components/header'
 import Specialitymenu from '../components/specialitymenu'
 import Topdoctors from '../components/topdoctors'
 import ActionBanner from '../components/banner'
-import Footer from '../components/footer'
 
 const Home = () => {
   return (
@@ -12,7 +11,6 @@ const Home = () => {
       <Specialitymenu/>
       <Topdoctors/>
       <ActionBanner/>
-      
     </div>
   )
 }
