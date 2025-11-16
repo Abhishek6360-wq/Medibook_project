@@ -7,6 +7,8 @@ const Myappointments = () => {
   const { backendurl, token, getdoctorsdata } = useContext(AppContext);
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [processingPayment, setProcessingPayment] = useState(null); // Track which appointment is processing payment
+  const [verifyingPayment, setVerifyingPayment] = useState(false); // Track if payment verification is in progress
   const navigate=useNavigate();
 
   // function to get user appointments
@@ -59,7 +61,7 @@ const Myappointments = () => {
   };
 
   // function to make payments
-  const initpay = (order) => {
+  const initpay = (order, appointmentid) => {
     const options = {
       key: import.meta.env.VITE_RAZORPAY_KEY_ID,
       amount: order.amount, 
@@ -69,14 +71,21 @@ const Myappointments = () => {
       order_id:order.id,
       receipt:order.receipt,
       handler:async(response)=>{
+        setVerifyingPayment(true);
         try{
           const {data}=await axios.post(backendurl+'/api/user/verify-payment',{response},{headers:{usertoken:token}});
           if(data.success){
+            toast.success("Payment verified successfully!");
             getuserappointments();
             navigate('/myappointments');
+          } else {
+            toast.error(data.message || "Payment verification failed");
           }
         }catch(error){
-          toast.error(error.message);
+          toast.error(error.message || "Payment verification failed");
+        }finally{
+          setVerifyingPayment(false);
+          setProcessingPayment(null);
         }
       },
       theme: {
@@ -85,10 +94,15 @@ const Myappointments = () => {
     }
     const rzp=new window.Razorpay(options)
     rzp.open();
+    rzp.on('payment.failed', function (response){
+      setProcessingPayment(null);
+      toast.error("Payment failed. Please try again.");
+    });
   }
 
 
   const payment = async (appointmentid) => {
+    setProcessingPayment(appointmentid);
     try {
       const { data } = await axios.post(
         backendurl + "/api/user/payment",
@@ -96,10 +110,14 @@ const Myappointments = () => {
         { headers: { usertoken: token } }
       );
       if (data.success) {
-        initpay(data.order);
+        initpay(data.order, appointmentid);
+      } else {
+        toast.error(data.message || "Failed to initialize payment");
+        setProcessingPayment(null);
       }
     } catch (error) {
-      toast.error(error.message);
+      toast.error(error.message || "Failed to initialize payment");
+      setProcessingPayment(null);
     }
   };
 
@@ -210,15 +228,37 @@ const Myappointments = () => {
 
                       <button
                         onClick={() => payment(appointment._id)}
-                        className={`w-full md:w-40 py-2 rounded-lg text-sm font-semibold transition duration-200 
+                        disabled={isPaid || processingPayment === appointment._id || verifyingPayment}
+                        className={`w-full md:w-40 py-2 rounded-lg text-sm font-semibold transition duration-200 flex items-center justify-center
                           ${
                             isPaid
                               ? "bg-green-100 text-green-700 cursor-default"
+                              : processingPayment === appointment._id || verifyingPayment
+                              ? "bg-blue-400 text-white cursor-not-allowed"
                               : "bg-blue-600 text-white hover:bg-blue-700 transform hover:scale-105 shadow-md"
                           }`}
-                        disabled={isPaid}
                       >
-                        {isPaid ? "Payment Received" : "Pay Online"}
+                        {isPaid ? (
+                          "Payment Received"
+                        ) : processingPayment === appointment._id ? (
+                          <>
+                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Processing...
+                          </>
+                        ) : verifyingPayment ? (
+                          <>
+                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Verifying...
+                          </>
+                        ) : (
+                          "Pay Online"
+                        )}
                       </button>
 
                       <button
