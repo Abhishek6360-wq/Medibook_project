@@ -15,6 +15,7 @@ connectCloudinary();
 // CORS FIX - Function-based origin handler for Render compatibility
 const allowedOrigins = [
   'https://medibook-frontend-oo5c.onrender.com',  // Frontend URL
+  'https://medibook-admin-7jp7.onrender.com',     // Admin frontend URL
   'http://localhost:5173',  // Local development frontend
   'http://localhost:5174',  // Local development admin (if different port)
   'http://localhost:3000'   // Alternative local port
@@ -28,11 +29,12 @@ const corsOptions = {
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     } else {
-      return callback(new Error('Not allowed by CORS'), false);
+      console.log(`CORS blocked origin: ${origin}`);
+      return callback(new Error(`Not allowed by CORS: ${origin}`), false);
     }
   },
   credentials: true,  // Allow cookies/auth headers if needed
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
   allowedHeaders: ['Content-Type', 'Authorization', 'admintoken', 'doctortoken', 'usertoken']
 };
 
