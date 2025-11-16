@@ -1,21 +1,22 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import { useNavigate } from 'react-router-dom' 
-import { doctors } from '../assets/assets';
+import { AppContext } from '../context/appcontext';
 import DoctorCard from './doctorcard';
 
 
 const Related = ({ docid, speciality }) => {
-    const [reldoc,setReldoc]=useState([]);
-    const navigate=useNavigate();
+    const { doctors } = useContext(AppContext);
+    const [reldoc,setReldoc]=useState([]);
+    const navigate=useNavigate();
 
 useEffect(()=>{
-  if(doctors.length > 0 && speciality && docid){
-    const doctordata=doctors.filter(
-       (doc => doc.speciality === speciality && doc._id !== docid)
-      );
-            setReldoc(doctordata);
-        }
-    },[speciality, docid]) 
+  if(doctors && doctors.length > 0 && speciality && docid){
+    const doctordata=doctors.filter(
+       (doc => doc.speciality === speciality && doc._id !== docid)
+      );
+            setReldoc(doctordata);
+        }
+    },[speciality, docid, doctors]) 
 
     if (reldoc.length === 0) {
         return <div className="p-4 mt-8 bg-white rounded-xl shadow-lg"><p className="text-gray-500">No other related doctors found in this specialty.</p></div>;

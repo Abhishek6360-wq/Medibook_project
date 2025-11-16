@@ -32,6 +32,7 @@ const Login = () => {
         }
         const {data}=await axios.post(backendurl+'/api/user/register',userdata);
         if(data.success){
+          localStorage.setItem('token',data.token)
           setToken(data.token);
         }else{
           toast.error(data.message);
@@ -39,6 +40,7 @@ const Login = () => {
       }else{
         const {data}=await axios.post(backendurl+'/api/user/login',{email,password});
         if(data.success){
+          localStorage.setItem('token',data.token)
           setToken(data.token);
         }else{
           toast.error(data.message);

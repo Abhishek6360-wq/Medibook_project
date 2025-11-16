@@ -1,6 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { assets } from '../assets/assets'; 
+import { useNavigate } from 'react-router-dom'; 
 
 const ActionBanner = () => {
     const navigate = useNavigate();
@@ -32,7 +31,7 @@ const ActionBanner = () => {
                 </div>
                 <div className="absolute right-0 top-0 bottom-0 hidden lg:block" style={{ width: '50%' }}>
                     <img
-                        src={assets.appointment_img}
+                        src="https://via.placeholder.com/400x300/4f46e5/ffffff?text=Book+Appointment"
                         alt="Smiling female doctor pointing"
                         className="h-full w-full object-contain object-right-bottom rounded-tr-xl rounded-br-xl"
                         style={{     

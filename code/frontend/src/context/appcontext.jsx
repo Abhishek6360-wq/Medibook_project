@@ -6,8 +6,14 @@ export const AppContext = createContext();
 
 const AppContextProvider = (props) => {
   const [doctors, setDoctors] = useState([]);
-  const [token, setToken] = useState(false);
-  const [userData, setUserData] = useState(null);
+  const [token, setToken] = useState(
+    localStorage.getItem("token") ? localStorage.getItem("token") : false
+  );
+  const [userData, setUserData] = useState(
+    localStorage.getItem("userData")
+      ? JSON.parse(localStorage.getItem("userData"))
+      : null
+  );
   const [loadingDoctors, setLoadingDoctors] = useState(true);
   const [loadingUserData, setLoadingUserData] = useState(false);
   const backendurl = import.meta.env.VITE_BACKEND_URL;
@@ -39,6 +45,7 @@ const AppContextProvider = (props) => {
       });
       if (data.success) {
         setUserData(data.user);
+        localStorage.setItem("userData", JSON.stringify(data.user));
       } else {
         toast.error(data.message);
       }
@@ -96,6 +103,7 @@ const AppContextProvider = (props) => {
       getuserprofiledata();
     } else {
       setUserData(null);
+      localStorage.removeItem("userData");
     }
   }, [token]);
 

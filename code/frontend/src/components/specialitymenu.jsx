@@ -1,7 +1,14 @@
 import React from 'react'
-import { assets } from '../assets/assets'
-import { specialityData } from '../assets/assets'
 import { Link } from 'react-router-dom'
+
+const specialityData = [
+    { speciality: 'General physician' },
+    { speciality: 'Gynecologist' },
+    { speciality: 'Dermatologist' },
+    { speciality: 'Pediatricians' },
+    { speciality: 'Neurologist' },
+    { speciality: 'Gastroenterologist' },
+];
 
 const Specialitymenu = () => {
   return (
@@ -13,7 +20,9 @@ const Specialitymenu = () => {
             {
                 specialityData.map((s,idx)=>(
                     <Link className="flex flex-col item-center text-xs cursor-pointer flex-shrink-0 hover:translate-y-[-10px] transition-all duration-500" onClick={()=>scrollTo(0,0)} key={idx} to={`/doctors/${s.speciality}`}>
-                    <img className="w-16 sm:w-24 mb-2"src={s.image} alt="lol"/>
+                    <div className="w-16 sm:w-24 h-16 sm:h-24 mb-2 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <span className="text-blue-600 font-semibold text-xs">{s.speciality.charAt(0)}</span>
+                    </div>
                     <p>{s.speciality}</p>
                     </Link>                    
                 ))

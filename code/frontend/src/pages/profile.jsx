@@ -1,6 +1,5 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import { AppContext } from '../context/appcontext';
-import { assets } from '../assets/assets';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
@@ -91,11 +90,11 @@ const Profile = () => {
         <div className="flex flex-col items-center text-center mb-6">
           <label htmlFor="imageUpload" className="relative cursor-pointer">
             <img
-              src={
-                selectedImage
-                  ? URL.createObjectURL(selectedImage)
-                  : userData.image || assets.default_user
-              }
+              src={
+                selectedImage
+                  ? URL.createObjectURL(selectedImage)
+                  : userData.image || "https://via.placeholder.com/112"
+              }
               alt="Profile"
               className="w-28 h-28 rounded-full border-4 border-blue-400 shadow-md mb-4 object-cover"
             />

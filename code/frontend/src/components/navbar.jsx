@@ -1,6 +1,5 @@
 import React, { useContext, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { assets } from "../assets/assets";
 import { AppContext } from "../context/appcontext";
 import { IoIosArrowDown } from "react-icons/io";
 
@@ -11,6 +10,7 @@ const Navbar = () => {
 
   const logout = () => {
     setToken(false);
+    localStorage.removeItem("token");
     setShowMenu(false);
   };
 
@@ -39,7 +39,7 @@ const Navbar = () => {
               {/* Profile Image */}
               {userData ? (
                 <img
-                  src={userData.image || assets.profile_pic}
+                  src={userData.image || "https://via.placeholder.com/32"}
                   className="w-8 h-8 rounded-full object-cover border border-gray-300"
                   alt="User"
                 />
