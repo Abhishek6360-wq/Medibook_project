@@ -176,7 +176,7 @@ const contactForm = async (req, res) => {
         // --- Mail sent to admin---
         const adminMail = {
             from: `"MediBook Contact" <${process.env.APP_EMAIL}>`,
-            to: process.env.APP_EMAIL, // you’ll receive user messages here
+            to: process.env.APP_EMAIL, // you'll receive user messages here
             subject: `📬 New message from ${name}`,
             text: `
 You have received a new message from MediBook Contact Form.
@@ -196,7 +196,7 @@ ${message}
             subject: "Thank you for contacting MediBook!",
             text: `Hi ${name},
 
-Thank you for reaching out to MediBook! We’ve received your message and our team will get back to you shortly.
+Thank you for reaching out to MediBook! We've received your message and our team will get back to you shortly.
 
 Warm regards,
 MediBook Team
@@ -217,6 +217,78 @@ MediBook Team
     }
 };
 
+// api to delete a doctor
+const deleteDoctor = async (req, res) => {
+    try {
+        const { docId } = req.body;
+        
+        if (!docId) {
+            return res.json({ success: false, message: "Doctor ID is required" });
+        }
 
+        // Find the doctor to get their image URL
+        const doctor = await docmodel.findById(docId);
+        if (!doctor) {
+            return res.json({ success: false, message: "Doctor not found" });
+        }
 
-export { addDoctor, loginadmin, listofalldoctors, appointmentsadmin, cancelanyappointment, getdashboarddata, contactForm };
+        // Find all appointments for this doctor
+        const appointments = await appointmentmodel.find({ DocId: docId });
+
+        // Cancel all appointments and release slots
+        for (const appointment of appointments) {
+            if (!appointment.cancelled) {
+                // Mark appointment as cancelled
+                await appointmentmodel.findByIdAndUpdate(appointment._id, { cancelled: true });
+                
+                // Release the slot from doctor's slots_booked
+                const { slotDate, slotTime } = appointment;
+                const docdata = await docmodel.findById(docId);
+                if (docdata && docdata.slots_booked && docdata.slots_booked[slotDate]) {
+                    let slots_booked = docdata.slots_booked;
+                    slots_booked[slotDate] = slots_booked[slotDate].filter(e => e !== slotTime);
+                    await docmodel.findByIdAndUpdate(docId, { slots_booked });
+                }
+            }
+        }
+
+        // Delete doctor's image from Cloudinary if it exists
+        if (doctor.image) {
+            try {
+                // Extract public_id from Cloudinary URL
+                const urlParts = doctor.image.split('/');
+                const publicIdWithExt = urlParts.slice(-2).join('/').split('.')[0];
+                const publicId = `Medibook_project/doctors/${publicIdWithExt}`;
+                
+                await cloudinary.uploader.destroy(publicId);
+            } catch (cloudinaryError) {
+                console.log("Error deleting image from Cloudinary:", cloudinaryError);
+                // Continue with doctor deletion even if image deletion fails
+            }
+        }
+
+        // Delete doctor from database
+        await docmodel.findByIdAndDelete(docId);
+
+        res.json({ 
+            success: true, 
+            message: "Doctor deleted successfully. All related appointments have been cancelled." 
+        });
+    } catch (error) {
+        console.log(error);
+        return res.json({ success: false, message: error.message });
+    }
+}
+
+// api to get all patients list
+const allPatients = async (req, res) => {
+    try {
+        const patients = await usermodel.find({}).select('-password');
+        res.json({ success: true, patients });
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: error.message });
+    }
+}
+
+export { addDoctor, loginadmin, listofalldoctors, appointmentsadmin, cancelanyappointment, getdashboarddata, contactForm, deleteDoctor, allPatients };

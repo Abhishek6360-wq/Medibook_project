@@ -17,6 +17,7 @@ import Dashboard from "./pages/adminpages/dashboard";
 import Allapointments from "./pages/adminpages/Allapointments";
 import Adddoctor from "./pages/adminpages/adddoctor";
 import Doctorlist from "./pages/adminpages/doctorslist";
+import PatientsList from "./pages/adminpages/patientslist";
 import DoctorLayout from "./components/doclayout";
 import Docappointments from "./pages/doctorpages/myappointments";
 import DoctorProfile from "./pages/doctorpages/docprofile";
@@ -39,6 +40,7 @@ function App() {
             { path: "/all-appointments", element: <Allapointments /> },
             { path: "/add-doctor", element: <Adddoctor /> },
             { path: "/doctor-list", element: <Doctorlist /> },
+            { path: "/patients-list", element: <PatientsList /> },
           ],
         },
       ],

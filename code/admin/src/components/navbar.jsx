@@ -1,7 +1,6 @@
 import React, { useContext } from "react";
 import { Admincontext } from "../context/admincontext";
 import { Doctorcontext } from "../context/doctorcontext";
-import { assets } from "../assets/assets.js";
 import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {

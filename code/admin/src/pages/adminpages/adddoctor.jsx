@@ -1,8 +1,15 @@
 import React, { useContext, useState } from "react";
-import { assets } from "../../assets/assets";
 import { Admincontext } from "../../context/admincontext";
 import { toast } from "react-toastify";
 import axios from "axios";
+
+// Inline SVG for upload area
+const UploadAreaSVG = () => (
+  <svg width="96" height="96" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect width="96" height="96" rx="48" fill="#E5E7EB"/>
+    <path d="M48 32V64M32 48H64" stroke="#9CA3AF" strokeWidth="4" strokeLinecap="round"/>
+  </svg>
+);
 
 const Adddoctor = () => {
   const [img, setImg] = useState(false);
@@ -17,17 +24,20 @@ const Adddoctor = () => {
   const [phnum, setPhnum] = useState("");
   const [address1, setAddress1] = useState("");
   const [address2, setAddress2] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const { backendurl, atoken } = useContext(Admincontext);
 
   const submithandler = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     try {
       if (!img) {
-        return toast.error("Image not selected");
+        toast.error("Image not selected");
+        setLoading(false);
+        return;
       }
-      // console.log("atoken in Adddoctor:", atoken);
 
       const formData = new FormData();
       formData.append("image", img);
@@ -53,11 +63,27 @@ const Adddoctor = () => {
 
       if (data.success) {
         toast.success(data.message);
+        // Reset form
+        setImg(false);
+        setName("");
+        setEmail("");
+        setPassword("");
+        setPhnum("");
+        setSpeciality("General physician");
+        setAbout("");
+        setFees("");
+        setExperience("1 year");
+        setDegree("");
+        setAddress1("");
+        setAddress2("");
       } else {
         toast.error(data.message);
       }
     } catch (error) {
       console.log(error);
+      toast.error("Failed to add doctor. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -69,11 +95,17 @@ const Adddoctor = () => {
       {/* Upload Image */}
       <div className="flex flex-col items-center gap-3">
         <label className="cursor-pointer">
-          <img
-            src={img ? URL.createObjectURL(img) : assets.upload_area}
-            alt="Upload"
-            className="h-24 w-24 object-cover rounded-full border border-gray-300 hover:opacity-80 transition"
-          />
+          {img ? (
+            <img
+              src={URL.createObjectURL(img)}
+              alt="Upload"
+              className="h-24 w-24 object-cover rounded-full border border-gray-300 hover:opacity-80 transition"
+            />
+          ) : (
+            <div className="h-24 w-24 flex items-center justify-center">
+              <UploadAreaSVG />
+            </div>
+          )}
           <input
             type="file"
             accept="image/*"
@@ -241,9 +273,10 @@ const Adddoctor = () => {
       {/* Submit */}
       <button
         type="submit"
-        className="self-start bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-all shadow-sm"
+        disabled={loading}
+        className="self-start bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        Add Doctor
+        {loading ? "Adding Doctor..." : "Add Doctor"}
       </button>
     </form>
   );
