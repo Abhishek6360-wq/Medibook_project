@@ -90,7 +90,7 @@ const Adddoctor = () => {
   return (
     <form
       onSubmit={submithandler}
-      className="max-w-4xl mx-auto bg-white p-8 rounded-2xl shadow-lg border border-gray-200 flex flex-col gap-6"
+      className="max-w-4xl mx-auto bg-white p-6 sm:p-8 rounded-2xl shadow-lg border border-gray-200 flex flex-col gap-6"
     >
       {/* Upload Image */}
       <div className="flex flex-col items-center gap-3">
@@ -117,7 +117,7 @@ const Adddoctor = () => {
       </div>
 
       {/* Grid Form */}
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Left Column */}
         <div className="flex flex-col gap-4">
           <div>

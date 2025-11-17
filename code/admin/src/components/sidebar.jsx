@@ -31,7 +31,7 @@ const AddIcon = () => (
   </svg>
 );
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen, onClose }) => {
   const linkClasses = ({ isActive }) =>
     `flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-colors ${
       isActive
@@ -40,14 +40,35 @@ const Sidebar = () => {
     }`;
 
   return (
-    <aside className="w-64 min-h-screen bg-white border-r border-gray-200 shadow-sm">
+    <aside
+      className={`fixed inset-y-0 left-0 z-30 w-64 bg-white border-r border-gray-200 shadow-lg transform transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 lg:shadow-none ${
+        isOpen ? "translate-x-0" : "-translate-x-full"
+      }`}
+      aria-label="Admin sidebar navigation"
+    >
       {/* Sidebar Header */}
-      <div className="p-6 border-b border-gray-200">
+      <div className="flex items-center justify-between p-6 border-b border-gray-200">
         <h1 className="text-xl font-bold text-blue-700">Admin Panel</h1>
+        <button
+          className="lg:hidden p-2 rounded-md text-gray-500 hover:text-gray-800 hover:bg-gray-100"
+          onClick={onClose}
+          aria-label="Close sidebar"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="w-5 h-5"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
       </div>
 
       {/* Sidebar Navigation */}
-      <nav className="flex flex-col gap-2 p-4">
+      <nav className="flex flex-col gap-2 p-4 overflow-y-auto h-[calc(100vh-80px)] lg:h-auto">
         <NavLink to="/dashboard" className={linkClasses}>
           <HomeIcon />
           Dashboard
@@ -70,6 +91,11 @@ const Sidebar = () => {
       </nav>
     </aside>
   );
+};
+
+Sidebar.defaultProps = {
+  isOpen: false,
+  onClose: () => {},
 };
 
 export default Sidebar;
