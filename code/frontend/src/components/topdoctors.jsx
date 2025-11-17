@@ -8,8 +8,8 @@ const TopDoctors = () => {
   const { doctors, loadingDoctors } = useContext(AppContext);
 
   return (
-    <div className="py-8 px-8">
-      <h1 className="text-center text-3xl font-bold mb-10 text-gray-800">
+    <section className="py-12 px-4 sm:px-8">
+      <h1 className="text-center text-2xl sm:text-3xl font-bold mb-8 text-gray-800">
         Top Doctors
       </h1>
 
@@ -25,7 +25,7 @@ const TopDoctors = () => {
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-2 gap-y-10 justify-items-center">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 justify-items-center">
           {doctors && doctors.length > 0 ? (
             doctors.slice(0, 10).map((doctor) => (
               <DoctorCard

@@ -14,25 +14,24 @@ const DoctorCard = React.memo(({ doctor, onclick }) => {
   return (
     <div
       className="
-        w-48 
+        w-full
+        max-w-xs
         bg-white 
-        rounded-lg 
-        shadow-md 
+        rounded-2xl 
+        shadow-lg 
         overflow-hidden 
         cursor-pointer 
         transition 
         duration-300 
-        ease-in-out 
-        transform 
-        hover:scale-[0.98]
-        hover:shadow-xl
+        hover:-translate-y-1
+        hover:shadow-2xl
       "
       onClick={onclick}
     >
       {/* Image Section */}
-      <div className="h-56 bg-blue-50 flex justify-center items-end p-0">
+      <div className="h-56 sm:h-60 bg-blue-50 flex justify-center items-end">
         <img
-          className="w-full h-full object-cover object-bottom"
+          className="w-full h-full object-cover object-top"
           src={image}
           alt={`Dr. ${name}`}
           loading="lazy"
