@@ -59,7 +59,7 @@ const TopDoctors = () => {
           More
         </button>
       </div>
-    </div>
+    </section>
   );
 };
 
