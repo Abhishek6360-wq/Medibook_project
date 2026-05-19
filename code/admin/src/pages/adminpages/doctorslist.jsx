@@ -45,7 +45,7 @@ const Doctorlist = () => {
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {doctors.map((doc) => (
           <div
-            key={doc._id}
+            key={doc.id}
             className="bg-white rounded-xl shadow-md border border-gray-200 hover:shadow-lg transition-all duration-200 p-5 flex flex-col items-center text-center"
           >
             {/* Doctor Image */}
@@ -67,7 +67,7 @@ const Doctorlist = () => {
                 <input
                   type="checkbox"
                   checked={doc.available}
-                  onChange={() => changeavailabillity(doc._id)}
+                  onChange={() => changeavailabillity(doc.id)}
                   disabled={loadingToggle}
                   className="sr-only peer"
                 />
@@ -99,7 +99,7 @@ const Doctorlist = () => {
 
             {/* Delete Button */}
             <button
-              onClick={() => deleteDoctor(doc._id)}
+              onClick={() => deleteDoctor(doc.id)}
               disabled={loadingDelete}
               className="mt-4 w-full bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >

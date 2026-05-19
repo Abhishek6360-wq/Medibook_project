@@ -106,9 +106,9 @@ const Doctors = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
             {filteredDoctors.map((doctor) => (
               <DoctorCard
-                key={doctor._id}
+                key={doctor.id}
                 doctor={doctor}
-                onclick={() => navigate(`/appointments/${doctor._id}`)}
+                onclick={() => navigate(`/appointments/${doctor.id}`)}
               />
             ))}
           </div>

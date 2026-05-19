@@ -1,24 +1,22 @@
 import React, { useContext, useEffect, useState } from "react";
 import { AppContext } from "../context/appcontext";
-import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
-import {useNavigate} from 'react-router-dom'
+import { useNavigate } from 'react-router-dom';
+import { listAppointmentsApi, cancelAppointmentApi, createPaymentApi, verifyPaymentApi } from '../api/api';
+
 const Myappointments = () => {
-  const { backendurl, token, getdoctorsdata } = useContext(AppContext);
+  const { token, getdoctorsdata } = useContext(AppContext);
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [processingPayment, setProcessingPayment] = useState(null); // Track which appointment is processing payment
   const [verifyingPayment, setVerifyingPayment] = useState(false); // Track if payment verification is in progress
-  const navigate=useNavigate();
+  const navigate = useNavigate();
 
   // function to get user appointments
   const getuserappointments = async () => {
     setLoading(true);
     try {
-      const { data } = await axios.get(
-        backendurl + "/api/user/user-appointment-list",
-        { headers: { usertoken: token } }
-      );
+      const data = await listAppointmentsApi(token);
       if (data.success) {
         setAppointments(data.appointments.reverse());
       } else {
@@ -26,7 +24,7 @@ const Myappointments = () => {
       }
     } catch (error) {
       toast.error(
-        error.message || "An error occurred while fetching appointments."
+        error.response?.data?.message || error.message || "An error occurred while fetching appointments."
       );
     } finally {
       setLoading(false);
@@ -36,17 +34,13 @@ const Myappointments = () => {
   // function to cancel an appointment
   const cancelappointment = async (appointmentid) => {
     try {
-      const { data } = await axios.post(
-        backendurl + "/api/user/cancel-appointment",
-        { appointmentid },
-        { headers: { usertoken: token } }
-      );
+      const data = await cancelAppointmentApi(appointmentid, token);
 
       if (data.success) {
         toast.success(data.message);
         setAppointments(prevAppointments => 
           prevAppointments.map(app => 
-            app._id === appointmentid 
+            app.id === appointmentid 
               ? { ...app, cancelled: true }
               : app
           )
@@ -56,7 +50,7 @@ const Myappointments = () => {
         toast.error(data.message);
       }
     } catch (error) {
-      toast.error(error.message);
+      toast.error(error.response?.data?.message || error.message);
     }
   };
 
@@ -66,24 +60,24 @@ const Myappointments = () => {
       key: import.meta.env.VITE_RAZORPAY_KEY_ID,
       amount: order.amount, 
       currency: order.currency,
-      name:"Appointment=payment",
+      name: "Appointment payment",
       description: "Test Transaction",
-      order_id:order.id,
-      receipt:order.receipt,
-      handler:async(response)=>{
+      order_id: order.id,
+      receipt: order.receipt,
+      handler: async (response) => {
         setVerifyingPayment(true);
-        try{
-          const {data}=await axios.post(backendurl+'/api/user/verify-payment',{response},{headers:{usertoken:token}});
-          if(data.success){
+        try {
+          const data = await verifyPaymentApi(response, token);
+          if (data.success) {
             toast.success("Payment verified successfully!");
             getuserappointments();
             navigate('/myappointments');
           } else {
             toast.error(data.message || "Payment verification failed");
           }
-        }catch(error){
-          toast.error(error.message || "Payment verification failed");
-        }finally{
+        } catch (error) {
+          toast.error(error.response?.data?.message || error.message || "Payment verification failed");
+        } finally {
           setVerifyingPayment(false);
           setProcessingPayment(null);
         }
@@ -92,23 +86,18 @@ const Myappointments = () => {
         color: "#3399cc",
       },
     }
-    const rzp=new window.Razorpay(options)
+    const rzp = new window.Razorpay(options)
     rzp.open();
-    rzp.on('payment.failed', function (response){
+    rzp.on('payment.failed', function (response) {
       setProcessingPayment(null);
       toast.error("Payment failed. Please try again.");
     });
   }
 
-
   const payment = async (appointmentid) => {
     setProcessingPayment(appointmentid);
     try {
-      const { data } = await axios.post(
-        backendurl + "/api/user/payment",
-        { appointmentid },
-        { headers: { usertoken: token } }
-      );
+      const data = await createPaymentApi(appointmentid, token);
       if (data.success) {
         initpay(data.order, appointmentid);
       } else {
@@ -116,7 +105,7 @@ const Myappointments = () => {
         setProcessingPayment(null);
       }
     } catch (error) {
-      toast.error(error.message || "Failed to initialize payment");
+      toast.error(error.response?.data?.message || error.message || "Failed to initialize payment");
       setProcessingPayment(null);
     }
   };
@@ -174,7 +163,7 @@ const Myappointments = () => {
 
             return (
               <div
-                key={appointment._id || index}
+                key={appointment.id || index}
                 className={`flex flex-col md:flex-row bg-white rounded-xl shadow-lg border-l-4 overflow-hidden 
                   ${
                     isCancelled
@@ -230,20 +219,20 @@ const Myappointments = () => {
                       </p>
 
                       <button
-                        onClick={() => payment(appointment._id)}
-                        disabled={isPaid || processingPayment === appointment._id || verifyingPayment}
-                        className={`w-full md:w-40 py-2 rounded-lg text-sm font-semibold transition duration-200 flex items-center justify-center
+                        onClick={() => payment(appointment.id)}
+                        disabled={isPaid || processingPayment === appointment.id || verifyingPayment}
+                        className={`w-full md:w-40 py-2 rounded-lg text-sm font-semibold transition duration-200 flex items-center justify-center cursor-pointer
                           ${
                             isPaid
                               ? "bg-green-100 text-green-700 cursor-default"
-                              : processingPayment === appointment._id || verifyingPayment
+                              : processingPayment === appointment.id || verifyingPayment
                               ? "bg-blue-400 text-white cursor-not-allowed"
                               : "bg-blue-600 text-white hover:bg-blue-700 transform hover:scale-105 shadow-md"
                           }`}
                       >
                         {isPaid ? (
                           "Payment Received"
-                        ) : processingPayment === appointment._id ? (
+                        ) : processingPayment === appointment.id ? (
                           <>
                             <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -265,8 +254,8 @@ const Myappointments = () => {
                       </button>
 
                       <button
-                        onClick={() => cancelappointment(appointment._id)}
-                        className="w-full md:w-40 py-2 rounded-lg text-sm font-semibold text-red-600 bg-white border border-red-300 transition duration-200 hover:bg-red-100 hover:text-red-700"
+                        onClick={() => cancelappointment(appointment.id)}
+                        className="w-full md:w-40 py-2 rounded-lg text-sm font-semibold text-red-600 bg-white border border-red-300 transition duration-200 hover:bg-red-100 hover:text-red-700 cursor-pointer"
                         disabled={isCancelled}
                       >
                         Cancel Appointment

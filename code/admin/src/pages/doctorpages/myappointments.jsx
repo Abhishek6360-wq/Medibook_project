@@ -49,7 +49,7 @@ const DoctorAppointments = () => {
                 const status = getAppointmentStatus(a);
                 const showActions = !a.cancelled && !a.isComplete;
                 return (
-                  <tr key={a._id} className="hover:bg-blue-50 transition duration-150">
+                  <tr key={a.id} className="hover:bg-blue-50 transition duration-150">
                     <td className="px-6 py-4 text-sm font-semibold text-gray-900">
                       {a.userData?.name || "Unknown Patient"}
                     </td>
@@ -75,15 +75,15 @@ const DoctorAppointments = () => {
                       {showActions ? (
                         <div className="flex justify-center space-x-2">
                           <button
-                            onClick={() => markcomplete(a._id)}
-                            className="px-3 py-1 text-xs font-medium rounded-lg text-white bg-green-500 hover:bg-green-600 shadow-sm transition hover:scale-105"
+                            onClick={() => markcomplete(a.id)}
+                            className="px-3 py-1 text-xs font-medium rounded-lg text-white bg-green-500 hover:bg-green-600 shadow-sm transition hover:scale-105 cursor-pointer"
                             title="Mark as completed"
                           >
                             ✓ Complete
                           </button>
                           <button
-                            onClick={() => markcancel(a._id)}
-                            className="px-3 py-1 text-xs font-medium rounded-lg text-white bg-red-500 hover:bg-red-600 shadow-sm transition hover:scale-105"
+                            onClick={() => markcancel(a.id)}
+                            className="px-3 py-1 text-xs font-medium rounded-lg text-white bg-red-500 hover:bg-red-600 shadow-sm transition hover:scale-105 cursor-pointer"
                             title="Cancel appointment"
                           >
                             ✕ Cancel

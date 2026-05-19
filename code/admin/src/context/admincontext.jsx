@@ -19,7 +19,8 @@ const Admincontextprovider = (props) => {
   const [loadingDelete, setLoadingDelete] = useState(false);
   const [loadingToggle, setLoadingToggle] = useState(false);
   
-  const backendurl = import.meta.env.VITE_BACKEND_URL;
+  const isLocalhost = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+  const backendurl = isLocalhost ? 'http://localhost:4000' : (import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000');
 
   // function to get list of all doctors  
   const alldoctors = async () => {

@@ -6,7 +6,9 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node server.js",
+    "seed": "node seed.js",
+    "db:migrate": "node run-migrations.js"
   },
   "author": "Christopher",
   "license": "ISC",
@@ -17,11 +19,17 @@
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.19.0",
     "multer": "^2.0.2",
     "nodemailer": "^7.0.10",
+    "pg": "^8.21.0",
+    "pg-hstore": "^2.3.4",
     "razorpay": "^2.9.6",
+    "sequelize": "^6.37.8",
     "streamifier": "^0.1.1",
+    "umzug": "^3.8.3",
     "validator": "^13.15.15"
+  },
+  "devDependencies": {
+    "sequelize-cli": "^6.6.5"
   }
 }

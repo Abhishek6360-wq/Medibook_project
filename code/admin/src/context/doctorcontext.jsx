@@ -7,7 +7,8 @@ import { useCallback } from "react";
 export const Doctorcontext=createContext();
 
 const Doctorcontextprovider=(props)=>{
-    const backendurl = import.meta.env.VITE_BACKEND_URL;
+    const isLocalhost = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+    const backendurl = isLocalhost ? 'http://localhost:4000' : (import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000');
     const[dtoken,setDtoken]=useState(localStorage.getItem("dtoken") ? localStorage.getItem("dtoken") : "");
     const[Appointments,setAppointments]=useState([]);
     const[Profiledata,setProfileData]=useState(null);

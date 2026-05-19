@@ -1,6 +1,6 @@
 import { createContext, useEffect, useState, useMemo, useCallback } from "react";
-import axios from "axios";
 import { toast } from "react-toastify";
+import { getDoctorsApi, getProfileApi, sendContactApi } from "../api/api";
 
 export const AppContext = createContext();
 
@@ -22,7 +22,7 @@ const AppContextProvider = (props) => {
   const getdoctorsdata = useCallback(async () => {
     setLoadingDoctors(true);
     try {
-      const { data } = await axios.get(backendurl + "/api/doctor/list");
+      const data = await getDoctorsApi();
       if (data.success) {
         setDoctors(data.doctors);
       } else {
@@ -33,16 +33,14 @@ const AppContextProvider = (props) => {
     } finally {
       setLoadingDoctors(false);
     }
-  }, [backendurl]);
+  }, []);
 
   // ============= GET USER PROFILE DATA =============
   const getuserprofiledata = useCallback(async () => {
     if (!token) return;
     setLoadingUserData(true);
     try {
-      const { data } = await axios.get(backendurl + "/api/user/user-data", {
-        headers: { usertoken: token },
-      });
+      const data = await getProfileApi(token);
       if (data.success) {
         setUserData(data.user);
         localStorage.setItem("userData", JSON.stringify(data.user));
@@ -54,16 +52,12 @@ const AppContextProvider = (props) => {
     } finally {
       setLoadingUserData(false);
     }
-  }, [token, backendurl]);
+  }, [token]);
 
   // ============= SEND CONTACT FORM =============
   const sendContactMessage = useCallback(async (formData) => {
     try {
-      const { data } = await axios.post(
-        backendurl + "/api/admin/contact",
-        formData,
-        { headers: { usertoken: token } }
-      );
+      const data = await sendContactApi(formData, token);
 
       if (data.success) {
         toast.success("Message sent successfully!");
@@ -76,7 +70,7 @@ const AppContextProvider = (props) => {
       toast.error("Something went wrong while sending message");
       return false;
     }
-  }, [backendurl, token]);
+  }, [token]);
 
   // ============= CONTEXT VALUE =============
   const value = useMemo(() => ({

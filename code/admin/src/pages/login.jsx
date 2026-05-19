@@ -9,14 +9,16 @@ import { Doctorcontext } from "../context/doctorcontext";
 const AdminLogin = () => {
   const [state, setState] = useState("Admin"); // "Admin" or "Doctor"
   const { setAtoken, backendurl } = useContext(Admincontext);
-  const{setDtoken,dtoken}=useContext(Doctorcontext);
+  const { setDtoken, dtoken } = useContext(Doctorcontext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       if (state === "Admin") {
         const url = backendurl + "/api/admin/login";
@@ -32,8 +34,8 @@ const AdminLogin = () => {
           toast.error(data.message || "Login failed");
         }
       } else {
-        const {data}=await axios.post(backendurl+'/api/doctor/login',{email,password});
-        if(data.success){
+        const { data } = await axios.post(backendurl + '/api/doctor/login', { email, password });
+        if (data.success) {
           localStorage.setItem("dtoken", data.token);
           localStorage.removeItem("atoken");
           setDtoken(data.token);
@@ -44,19 +46,21 @@ const AdminLogin = () => {
       }
     } catch (err) {
       console.error("Axios error:", err.message);
-      if (err.response) {
-        // server sent a response with error status
-        console.error("Response error data:", err.response.data);
-        toast.error(err.response.data.message || "Login failed");
-      } else if (err.request) {
-        // request made but no response
-        console.error("No response from server:", err.request);
-        toast.error("No response from server");
-      } else {
-        // something else happened
-        console.error("Error:", err.message);
-        toast.error("Something went wrong!");
-      }
+      toast.error(err.response?.data?.message || "Login failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGuestLogin = () => {
+    if (state === "Admin") {
+      setEmail("at8984316@gmail.com");
+      setPassword("This#ismy2025app");
+      toast.info("Guest Admin credentials loaded! Click 'Login' to log in.");
+    } else {
+      setEmail("doctor_guest@medibook.com");
+      setPassword("guestpassword123");
+      toast.info("Guest Doctor credentials loaded! Click 'Login' to log in.");
     }
   };
 
@@ -82,9 +86,10 @@ const AdminLogin = () => {
               placeholder="Enter your email"
               onChange={(e) => setEmail(e.target.value)}
               value={email}
+              disabled={loading}
               className="w-full px-4 py-2 text-sm border rounded-lg 
                          focus:outline-none focus:ring-2 focus:ring-blue-500 
-                         border-gray-300"
+                         border-gray-300 disabled:opacity-50"
             />
           </div>
 
@@ -101,21 +106,42 @@ const AdminLogin = () => {
               placeholder="Enter your password"
               onChange={(e) => setPassword(e.target.value)}
               value={password}
+              disabled={loading}
               className="w-full px-4 py-2 text-sm border rounded-lg 
                          focus:outline-none focus:ring-2 focus:ring-blue-500 
-                         border-gray-300"
+                         border-gray-300 disabled:opacity-50"
             />
           </div>
 
           <button
             type="submit"
+            disabled={loading}
             className="w-full py-2 font-semibold text-white 
                        bg-blue-600 rounded-lg hover:bg-blue-700 
-                       transition-colors cursor-pointer"
+                       transition-colors cursor-pointer disabled:opacity-50"
           >
-            Login
+            {loading ? "Logging in..." : "Login"}
+          </button>
+
+          <button
+            type="button"
+            disabled={loading}
+            onClick={handleGuestLogin}
+            className="w-full py-2 font-semibold text-blue-600 border border-blue-600 
+                       bg-white rounded-lg hover:bg-blue-50 
+                       transition-colors cursor-pointer disabled:opacity-50 mt-2"
+          >
+            {state === "Admin" ? "Sign In as Guest Admin" : "Sign In as Guest Doctor"}
           </button>
         </form>
+
+        {/* Guest Credentials Helper Card */}
+        <div className="mt-6 p-4 bg-blue-50 rounded-xl border border-blue-100 text-xs text-left">
+          <p className="font-bold text-blue-700 mb-1">💡 Guest {state} Login:</p>
+          <p className="text-gray-600"><span className="font-semibold">Email:</span> {state === "Admin" ? "at8984316@gmail.com" : "doctor_guest@medibook.com"}</p>
+          <p className="text-gray-600"><span className="font-semibold">Password:</span> {state === "Admin" ? "This#ismy2025app" : "guestpassword123"}</p>
+          <p className="text-gray-500 mt-2 italic">Tip: Click the Guest button to auto-fill, then click "Login"!</p>
+        </div>
 
         {/* Toggle Admin/Doctor */}
         {state === "Admin" ? (

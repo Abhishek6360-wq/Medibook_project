@@ -80,7 +80,7 @@ const PatientsList = () => {
           {patients.length > 0 ? (
             patients.map((patient, index) => (
               <div
-                key={patient._id}
+                key={patient.id}
                 className="grid grid-cols-2 md:grid-cols-5 gap-4 p-4 md:px-6 md:py-4 items-center hover:bg-blue-50 transition-colors"
               >
                 <div className="text-sm font-medium text-gray-900">
@@ -97,7 +97,7 @@ const PatientsList = () => {
                 </div>
                 <div className="text-sm text-gray-700">
                   <span className="md:hidden font-bold text-gray-500 mr-2">Phone:</span>
-                  {patient.phnum || 'N/A'}
+                  {patient.phno || patient.phnum || 'N/A'}
                 </div>
                 <div className="text-sm text-gray-500">
                   <span className="md:hidden font-bold text-gray-500 mr-2">Joined:</span>

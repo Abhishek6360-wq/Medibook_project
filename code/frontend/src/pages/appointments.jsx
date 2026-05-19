@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useMemo, useContext, useCallback } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { AppContext } from '../context/appcontext';
-import axios from 'axios';
 import { toast } from 'react-toastify';
+import { bookAppointmentApi } from '../api/api';
+import { calculateAvailableSlots } from '../utils/dateHelper';
 
 // Verified Tick SVG Component
 const VerifiedIcon = () => (
@@ -13,7 +14,7 @@ const VerifiedIcon = () => (
 
 const Appointments = () => {
   const navigate = useNavigate();
-  const { doctors, getdoctorsdata, backendurl, token, loadingDoctors } = useContext(AppContext);
+  const { doctors, getdoctorsdata, token, loadingDoctors } = useContext(AppContext);
   const { docid } = useParams();
   const [doctor, setDocinfo] = useState(null);
   const [docslots, setDocslots] = useState([]);
@@ -41,10 +42,9 @@ const Appointments = () => {
 
       let slotdate = day + "/" + month + "/" + year;
 
-      const { data } = await axios.post(
-        backendurl + '/api/user/user-appointment',
-        { docId: docid, slotDate: slotdate, slotTime: selectedTime.time },
-        { headers: { usertoken: token } }
+      const data = await bookAppointmentApi(
+        { docId: Number(docid), slotDate: slotdate, slotTime: selectedTime.time },
+        token
       );
 
       if (data.success) {
@@ -55,83 +55,20 @@ const Appointments = () => {
         toast.error(data.message);
       }
     } catch (error) {
-      toast.error(error.message);
+      toast.error(error.response?.data?.message || error.message);
     } finally {
       setLoadingBooking(false);
     }
-  }, [token, docslots, slotidx, selectedTime, backendurl, docid, navigate, getdoctorsdata]);
+  }, [token, docslots, slotidx, selectedTime, docid, navigate, getdoctorsdata]);
 
   // Memoize doctor lookup
   const currentDoctor = useMemo(() => {
-    return doctors.find(doc => doc._id === docid);
+    return doctors.find(doc => doc.id.toString() === docid.toString());
   }, [doctors, docid]);
 
-  // Memoize slot calculation
+  // Centralized Slot Calculation Logic (Centralized for interview preparation & unit testing)
   const calculatedSlots = useMemo(() => {
-    if (!currentDoctor) return [];
-    const allSlots = []; 
-    let today = new Date();
-
-    const DAILY_END_HOUR = 21;
-    const FUTURE_DAY_START_HOUR = 10;
-
-    for (let i = 0; i < 7; i++) {
-      let currentDate = new Date(today);
-      currentDate.setDate(today.getDate() + i); 
-
-      let endTime = new Date(currentDate);
-      endTime.setHours(DAILY_END_HOUR, 0, 0, 0);
-
-      if (i === 0) {
-        let now = new Date();
-        if (now.getHours() < FUTURE_DAY_START_HOUR) {
-          currentDate.setHours(FUTURE_DAY_START_HOUR, 0, 0, 0);
-        } else {
-          let minutes = now.getMinutes();
-          let newMinutes = minutes < 30 ? 30 : 60; 
-          currentDate = new Date(now); 
-          if (newMinutes === 60) {
-            currentDate.setHours(currentDate.getHours() + 1, 0, 0, 0); 
-          } else {
-            currentDate.setMinutes(newMinutes, 0, 0); 
-          }
-        }
-      } else {
-        currentDate.setHours(FUTURE_DAY_START_HOUR, 0, 0, 0);
-      }
-
-      let timeslots = [];
-      while (currentDate < endTime) {
-        let formattedTime = currentDate.toLocaleTimeString([], { 
-          hour: '2-digit', 
-          minute: '2-digit', 
-          hour12: true 
-        });
-
-        let day = currentDate.getDate();
-        let month = currentDate.getMonth() + 1;
-        let year = currentDate.getFullYear();
-
-        const slot_date = day + "/" + month + "/" + year;
-        const slot_time = formattedTime;
-
-        const isslotavailable = currentDoctor.slots_booked[slot_date] && currentDoctor.slots_booked[slot_date].includes(slot_time)
-          ? false : true;
-
-        if (isslotavailable) {
-          timeslots.push({
-            datetime: new Date(currentDate),
-            time: formattedTime 
-          });
-        }
-        currentDate.setMinutes(currentDate.getMinutes() + 30);
-      }
-
-      if (timeslots.length > 0) {
-        allSlots.push(timeslots);
-      }
-    }
-    return allSlots;
+    return calculateAvailableSlots(currentDoctor);
   }, [currentDoctor]);
 
   useEffect(() => {
@@ -248,7 +185,7 @@ const Appointments = () => {
                   <button
                     key={`${slot.datetime.getTime()}-${slot.time}`}
                     onClick={() => setSelectedTime(slot)}
-                    className={`py-3 px-2 rounded-xl text-base font-medium transition duration-200 border-2
+                    className={`py-3 px-2 rounded-xl text-base font-medium transition duration-200 border-2 cursor-pointer
                       ${selectedTime?.time === slot.time
                         ? 'bg-green-600 text-white border-green-700 shadow-md shadow-green-200/50'
                         : 'bg-gray-50 text-gray-800 hover:bg-blue-50 border-gray-300'
@@ -263,7 +200,7 @@ const Appointments = () => {
                 <button
                   onClick={BookAppointment}
                   disabled={!selectedTime || loadingBooking}
-                  className={`w-full py-4 rounded-xl text-xl font-extrabold tracking-wider transition-all duration-300 flex items-center justify-center
+                  className={`w-full py-4 rounded-xl text-xl font-extrabold tracking-wider transition-all duration-300 flex items-center justify-center cursor-pointer
                     ${selectedTime && !loadingBooking
                       ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-2xl shadow-blue-300/50 transform hover:scale-[1.005]'
                       : 'bg-gray-200 text-gray-500 cursor-not-allowed shadow-inner'

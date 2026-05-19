@@ -29,9 +29,9 @@ const TopDoctors = () => {
           {doctors && doctors.length > 0 ? (
             doctors.slice(0, 10).map((doctor) => (
               <DoctorCard
-                key={doctor._id}
+                key={doctor.id}
                 doctor={doctor}
-                onclick={() => navigate(`/appointments/${doctor._id}`)}
+                onclick={() => navigate(`/appointments/${doctor.id}`)}
               />
             ))
           ) : (

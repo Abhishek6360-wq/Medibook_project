@@ -150,7 +150,7 @@ const Dashboard = () => {
             {/* List Rows */}
             <div className="divide-y divide-gray-100">
               {latest_appointments.map((appointment, index) => (
-                <AppointmentRow key={appointment._id} appointment={appointment} index={index} />
+                <AppointmentRow key={appointment.id} appointment={appointment} index={index} />
               ))}
             </div>
           </>

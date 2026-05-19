@@ -1,7 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import 'dotenv/config'
-import connectdb from './config/mongodb.js';
+import { connectDB } from './config/database.js';
 import connectCloudinary from './config/cloudinary.js';
 import adminrouter from './routes/adminroute.js';
 import docrouter from './routes/doctorroute.js';
@@ -9,16 +9,17 @@ import userrouter from './routes/userrooutes.js';
 const app=express();
 const port=process.env.PORT || 4000;
 
-connectdb();
+await connectDB();
 connectCloudinary();
 
-// CORS FIX - Function-based origin handler for Render compatibility
+// CORS FIX - Function-based origin handler for Render and Local compatibility
 const allowedOrigins = [
   'https://medibook-frontend-oo5c.onrender.com',  // Frontend URL
   'https://medibook-admin-7jp7.onrender.com',     // Admin frontend URL
-  'http://localhost:5173',  // Local development frontend
-  'http://localhost:5174',  // Local development admin (if different port)
-  'http://localhost:3000'   // Alternative local port
+  'http://localhost:5173',                         // Local Patient Frontend
+  'http://localhost:5174',                         // Local Admin Panel
+  'http://localhost:5175',                         // Fallback Vite port
+  'http://localhost:3000'                          // Traditional fallback
 ];
 
 const corsOptions = {
