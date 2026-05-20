@@ -23,7 +23,15 @@ const seedDatabase = async () => {
 
     // 1. Clean slate: Truncate existing tables to avoid duplicate key issues or conflicts
     console.log('Clearing existing data from database for a fresh seed...');
-    await sequelize.query('TRUNCATE TABLE "Appointments", "Doctors", "Users" RESTART IDENTITY CASCADE;');
+    try {
+      await sequelize.query('TRUNCATE TABLE "Appointments", "Doctors", "Users" RESTART IDENTITY CASCADE;');
+    } catch (err) {
+      if (err.parent && err.parent.code === '42P01') {
+        console.log('⚠️ Some tables do not exist yet for truncation. Skipping truncation step...');
+      } else {
+        throw err;
+      }
+    }
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash('guestpassword123', salt);
