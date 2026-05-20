@@ -1,5 +1,6 @@
 import { User, Doctor, Appointment } from '../models/index.js';
 import { runInTransaction } from '../utils/transactionHelper.js';
+import { sendRefundEmail } from '../utils/emailHelper.js';
 import Razorpay from 'razorpay';
 import crypto from 'crypto';
 import 'dotenv/config';
@@ -115,7 +116,7 @@ export const verifyPayment = async (razorpay_order_id, razorpay_payment_id, razo
     const appointmentId = parseInt(orderInfo.receipt);
 
     // Securely lock the records and save the booked slot inside a transaction on payment success
-    await runInTransaction(async (transaction) => {
+    const result = await runInTransaction(async (transaction) => {
       const appointment = await Appointment.findByPk(appointmentId, { 
         transaction,
         lock: transaction.LOCK.UPDATE 
@@ -123,7 +124,7 @@ export const verifyPayment = async (razorpay_order_id, razorpay_payment_id, razo
       
       if (!appointment) throw new Error("Appointment not found");
       if (appointment.cancelled) throw new Error("Appointment already cancelled");
-      if (appointment.payment) return; // Already processed
+      if (appointment.payment) return { status: 'already_paid' }; // Already processed
 
       // Lock Doctor record to modify slots_booked safely
       const doc = await Doctor.findByPk(appointment.DocId, { 
@@ -134,7 +135,9 @@ export const verifyPayment = async (razorpay_order_id, razorpay_payment_id, razo
 
       let slots_booked = doc.slots_booked || {};
       if (slots_booked[appointment.slotDate] && slots_booked[appointment.slotDate].includes(appointment.slotTime)) {
-        throw new Error("This slot has already been booked and paid for by another patient.");
+        // Concurrency Block: Double booking detected. Mark as cancelled in database and flag for auto-refund
+        await appointment.update({ cancelled: true }, { transaction });
+        return { status: 'refund_needed', appointment: appointment.toJSON(), docName: doc.name };
       }
 
       if (slots_booked[appointment.slotDate]) {
@@ -146,7 +149,46 @@ export const verifyPayment = async (razorpay_order_id, razorpay_payment_id, razo
       // Commit the updates under transaction locks
       await doc.update({ slots_booked }, { transaction });
       await appointment.update({ payment: true }, { transaction });
+      
+      return { status: 'success' };
     });
+
+    if (result && result.status === 'refund_needed') {
+      console.warn(`⚠️ Slot already booked by another user. Initiating automatic Razorpay refund for payment: ${razorpay_payment_id}`);
+      try {
+        const refund = await razorpayInstance.payments.refund(razorpay_payment_id, {
+          notes: {
+            reason: "Automatic refund: Slot already booked (concurrency conflict)",
+            appointmentId: appointmentId.toString(),
+            slot: `${result.appointment.slotDate} ${result.appointment.slotTime}`
+          }
+        });
+
+        console.log(`✅ Razorpay Refund initiated successfully. Refund ID: ${refund.id}`);
+
+        // Retrieve patient email/name from appointment details to send custom notification
+        const userData = result.appointment.userData || {};
+        if (userData.email) {
+          sendRefundEmail(
+            userData.email,
+            userData.name || 'Patient',
+            result.docName || 'Doctor',
+            result.appointment.slotDate,
+            result.appointment.slotTime,
+            result.appointment.amount,
+            refund.id
+          ).catch(err => console.error("Error sending refund email:", err));
+        }
+
+        return {
+          status: 'refunded',
+          message: 'This slot was already booked by another patient at the exact same moment. A full refund has been automatically initiated.'
+        };
+      } catch (refundError) {
+        console.error("❌ Critical: Failed to initiate Razorpay refund:", refundError);
+        throw new Error(`Refund initiation failed: ${refundError.message}`);
+      }
+    }
 
     return true;
   }

@@ -119,7 +119,16 @@ export const payment = async (req, res) => {
 export const verifypayment = async (req, res) => {
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body.response;
-    await appointmentService.verifyPayment(razorpay_order_id, razorpay_payment_id, razorpay_signature);
+    const result = await appointmentService.verifyPayment(razorpay_order_id, razorpay_payment_id, razorpay_signature);
+    
+    if (result && result.status === 'refunded') {
+      return res.json({ 
+        success: false, 
+        message: result.message,
+        status: 'refunded'
+      });
+    }
+
     res.json({ success: true, message: "Payment succesfull" });
   } catch (error) {
     console.log(error);
