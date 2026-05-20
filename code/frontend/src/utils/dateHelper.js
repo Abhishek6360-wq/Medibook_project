@@ -67,15 +67,13 @@ export const calculateAvailableSlots = (doctor, dailyEndHour = 21, startHour = 1
       const slot_date = `${day}/${month}/${year}`;
       const slot_time = formattedTime;
 
-      // Filter out slots that are already booked
-      const isSlotAvailable = !(doctor.slots_booked?.[slot_date] && doctor.slots_booked[slot_date].includes(slot_time));
+      const isBooked = !!(doctor.slots_booked?.[slot_date] && doctor.slots_booked[slot_date].includes(slot_time));
 
-      if (isSlotAvailable) {
-        timeslots.push({
-          datetime: new Date(currentDate),
-          time: formattedTime
-        });
-      }
+      timeslots.push({
+        datetime: new Date(currentDate),
+        time: formattedTime,
+        booked: isBooked
+      });
       currentDate.setMinutes(currentDate.getMinutes() + 30);
     }
 

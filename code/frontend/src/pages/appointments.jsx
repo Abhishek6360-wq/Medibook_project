@@ -184,14 +184,23 @@ const Appointments = () => {
                 {docslots[slotidx].map((slot) => (
                   <button
                     key={`${slot.datetime.getTime()}-${slot.time}`}
+                    disabled={slot.booked}
+                    title={slot.booked ? "This slot is already booked" : ""}
                     onClick={() => setSelectedTime(slot)}
-                    className={`py-3 px-2 rounded-xl text-base font-medium transition duration-200 border-2 cursor-pointer
-                      ${selectedTime?.time === slot.time
-                        ? 'bg-green-600 text-white border-green-700 shadow-md shadow-green-200/50'
-                        : 'bg-gray-50 text-gray-800 hover:bg-blue-50 border-gray-300'
+                    className={`py-3 px-2 rounded-xl text-base font-medium transition duration-200 border-2 relative group
+                      ${slot.booked
+                        ? 'bg-red-50 text-red-400 border-red-100 cursor-not-allowed'
+                        : selectedTime?.time === slot.time
+                          ? 'bg-green-600 text-white border-green-700 shadow-md shadow-green-200/50 cursor-pointer'
+                          : 'bg-gray-50 text-gray-800 hover:bg-blue-50 border-gray-300 cursor-pointer'
                       }`}
                   >
                     {slot.time}
+                    {slot.booked && (
+                      <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-900 text-white text-xs py-1 px-2 rounded shadow-lg whitespace-nowrap z-50">
+                        Slot Booked
+                      </span>
+                    )}
                   </button>
                 ))}
               </div>

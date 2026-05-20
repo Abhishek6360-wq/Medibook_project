@@ -40,6 +40,17 @@ export const cancelAppointment = async (docId, appointmentId) => {
   const appointment = await Appointment.findByPk(appointmentId);
   if (appointment && appointment.DocId === docId) {
     await Appointment.update({ cancelled: true }, { where: { id: appointmentId } });
+
+    if (appointment.payment) {
+      const doc = await Doctor.findByPk(docId);
+      if (doc) {
+        let slots_booked = doc.slots_booked || {};
+        if (slots_booked[appointment.slotDate]) {
+          slots_booked[appointment.slotDate] = slots_booked[appointment.slotDate].filter(e => e !== appointment.slotTime);
+          await Doctor.update({ slots_booked }, { where: { id: docId } });
+        }
+      }
+    }
     return true;
   }
   throw new Error("appointment already cancelled or invalid docid");

@@ -65,11 +65,15 @@ export const cancelAppointmentAdmin = async (appointmentId) => {
 
   await Appointment.update({ cancelled: true }, { where: { id: appointmentId } });
 
-  const doc = await Doctor.findByPk(appointment.DocId);
-  let slots_booked = doc.slots_booked || {};
-  if (slots_booked[appointment.slotDate]) {
-    slots_booked[appointment.slotDate] = slots_booked[appointment.slotDate].filter(e => e !== appointment.slotTime);
-    await Doctor.update({ slots_booked }, { where: { id: appointment.DocId } });
+  if (appointment.payment) {
+    const doc = await Doctor.findByPk(appointment.DocId);
+    if (doc) {
+      let slots_booked = doc.slots_booked || {};
+      if (slots_booked[appointment.slotDate]) {
+        slots_booked[appointment.slotDate] = slots_booked[appointment.slotDate].filter(e => e !== appointment.slotTime);
+        await Doctor.update({ slots_booked }, { where: { id: appointment.DocId } });
+      }
+    }
   }
 };
 
